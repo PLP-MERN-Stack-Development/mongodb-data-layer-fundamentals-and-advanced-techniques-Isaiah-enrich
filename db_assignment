@@ -1,0 +1,61 @@
+use schooldatabase
+  // CREATE
+db.students.insertOne({ name: "Isaac", age: 20, grade: "A" })
+db.students.insertMany([
+  { name: "Mary", age: 22, grade: "B" },
+  { name: "John", age: 21, grade: "A" }
+])
+
+// READ
+db.students.find()                        // all
+db.students.find({ grade: "A" })          // filter
+db.students.findOne({ name: "Mary" })     // single doc
+
+// UPDATE
+db.students.updateOne(
+  { name: "Mary" },
+  { $set: { grade: "A+" } }
+)
+db.students.updateMany(
+  { grade: "A" },
+  { $set: { honorRoll: true } }
+)
+
+// DELETE
+db.students.deleteOne({ name: "Isaac" })
+db.students.deleteMany({ grade: "B" })
+
+// Comparison
+db.students.find({ age: { $gt: 20 } })   // greater than
+db.students.find({ age: { $lte: 21 } })  // less or equal
+
+// Logical
+db.students.find({ $or: [ { grade: "A" }, { grade: "A+" } ] })
+db.students.find({ $and: [ { age: { $gt: 20 } }, { grade: "A" } ] })
+
+// Projection (return specific fields)
+db.students.find({}, { name: 1, grade: 1, _id: 0 })
+
+  // Count students by grade
+db.students.aggregate([
+  { $group: { _id: "$grade", total: { $sum: 1 } } }
+])
+
+// Average age by grade
+db.students.aggregate([
+  { $group: { _id: "$grade", avgAge: { $avg: "$age" } } }
+])
+
+// Sort students by age descending
+db.students.aggregate([
+  { $sort: { age: -1 } }
+])
+
+  // Create index on 'name'
+db.students.createIndex({ name: 1 })
+
+// Show indexes
+db.students.getIndexes()
+
+// Check performance
+db.students.find({ name: "John" }).explain("executionStats")
